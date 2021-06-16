@@ -7,17 +7,50 @@ left outer join subjects on subject_teacher.subject_id = subjects.id
 только преподы с предметами
 SELECT teachers_list.name as name, teachers_list.lastname as lastname, subjects.name as subject from teachers_list left outer join subject_teacher on subject_teacher.teacher_id = teachers_list.id RIGHT outer join subjects on subject_teacher.subject_id = subjects.id
 
+
+
+
+
+
+
+
+
 2.имя, фамилия, email студента и группа в которой он учится
 =====================================================================
 SELECT students.name as name, students.lastname as lastname, students.email as email, groups_list.name as 'group_name' from students left outer join students_groups on students_groups.student_id = students.id inner join groups_list on students_groups.group_id = groups_list.id
+
+
+
+
+
+
+
+
+
+
 
 3.email студентов которые на данный момент учаться
 ===============================================================
 SELECT students.email as email from students inner join students_groups on students_groups.student_id = students.id left outer join groups_list on students_groups.group_id = groups_list.id where groups_list.graduation_date is null
 
+
+
+
+
+
+
+
+
 4.названия груп, которые выпустились
 =============================================================
 SELECT groups_list.name from groups_list where groups_list.graduation_date is not null
+
+
+
+
+
+
+
 
 5.имя фамилия препода, который в данный момент не ведет ни одной группы (не получилось)
 ====================================================================
@@ -26,17 +59,35 @@ left outer join subject_teacher on subject_teacher.teacher_id = teachers_list.id
 left outer join subjects on subject_teacher.subject_id = subjects.id
 left outer join groups_list on groups_list.subject_teacher_id = subject_teacher.id
 
+
+
+
+
+
+
 6.количество груп которые выпустились и общее количество студентов из них
 ===========================================================================
-SELECT count(groups_list.id) as groups_amount from groups_list
-where groups_list.graduation_date is not null
+VIEW(graduation_groups_and_amount_students)
 
-UNION
+SELECT groups_list.name as name, count(students.id) as amount, groups_list.graduation_date as out_day
+from groups_list
+inner join students_groups on students_groups.group_id = groups_list.id
+inner join students on students_groups.student_id = students.id
+GROUP by name, out_day
+having groups_list.graduation_date is not null
 
-SELECT count(students.id) as students_amount from students
-inner join students_groups on students_groups.student_id = students.id
-inner join groups_list on  students_groups.group_id = groups_list.id
-where groups_list.graduation_date is not null
+SELECT count(graduation_groups_and_amount_students.name) as amount_groups, sum(graduation_groups_and_amount_students.amount) as amount_students FROM `graduation_groups_and_amount_students`
+
+
+
+
+
+
+
+
+
+
+
 
 7.имя фамилия препода и количество предметов которые он может читать
 ==============================================================================
